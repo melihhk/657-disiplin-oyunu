@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>657 Disiplin Cezaları - Eşleştirme Oyunu</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #eef1ff, #f7fbff);
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 16px 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        padding: 24px 28px 28px;
+        margin-top: 20px;
+      }
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 6px;
+      text-align: center;
+      color: #222b55;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #667;
+      margin-bottom: 16px;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f2f3ff;
+      color: #333;
+    }
+
+    .stat.good { background: #e4fbe9; color: #146c2e; }
+    .stat.bad  { background: #ffe8e6; color: #a32121; }
+    .stat.total{ background: #eaf3ff; color: #204a9b; }
+
+    .badge {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .card {
+      background: #f9f9ff;
+      border-radius: 14px;
+      padding: 14px 14px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e0e4ff;
+    }
+
+    .card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #889;
+      margin-bottom: 6px;
+    }
+
+    .fiil-text {
+      font-size: 14px;
+      line-height: 1.4;
+      color: #222b55;
+      white-space: pre-wrap;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .choice-btn {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: #eef1ff;
+      color: #20244a;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease, color 0.1s ease;
+    }
+
+    .choice-btn span.label {
+      font-weight: 500;
+    }
+
+    .choice-btn span.tag {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .choice-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+
+    .choice-btn.correct {
+      background: #dffbe7;
+      color: #0f6a2e;
+      box-shadow: 0 3px 10px rgba(0,128,0,0.2);
+    }
+
+    .choice-btn.wrong {
+      background: #ffe2df;
+      color: #8c1515;
+      box-shadow: 0 3px 10px rgba(200,0,0,0.2);
+      animation: shake 0.25s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    .feedback {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      display: none;
+      margin-bottom: 12px;
+    }
+
+    .feedback.good {
+      display: block;
+      background: #e4fbe9;
+      border: 1px solid #b7ecc6;
+      color: #145729;
+    }
+
+    .feedback.bad {
+      display: block;
+      background: #ffe7e4;
+      border: 1px solid #f0b9b0;
+      color: #8a1919;
+    }
+
+    .feedback strong {
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #4a63ff;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #e0e4ff;
+      color: #1d2b6a;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .finished {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 8px;
+      color: #37436e;
+    }
+
+    /* Sonraki fiil butonunu gizledik, sadece otomatik geçiş var */
+    #next-btn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>657 Disiplin Cezaları</h1>
+    <div class="subtitle">Fiili doğru ceza türüyle eşleştir, puan topla, ezberle 🎯</div>
+
+    <div class="stats">
+      <div class="stat good">
+        ✔ Doğru:
+        <span class="badge" id="stat-correct">0</span>
+      </div>
+      <div class="stat bad">
+        ✖ Yanlış:
+        <span class="badge" id="stat-wrong">0</span>
+      </div>
+      <div class="stat total">
+        🔄 Toplam:
+        <span class="badge" id="stat-total">0</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Fiil</div>
+      <div class="fiil-text" id="fiil-text">
+        Yükleniyor...
+      </div>
+    </div>
+
+    <div class="buttons" id="buttons"></div>
+
+    <div id="feedback" class="feedback"></div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="next-btn" disabled>🔁 Sonraki fiil</button>
+      <button class="btn btn-secondary" id="reset-btn">🔄 Baştan başla</button>
+    </div>
+
+    <div class="finished" id="finished-text" style="display:none;">
+      🎉 Tüm fiilleri bir kez gördün. İstersen yeniden başlayıp tekrar edebilirsin.
+    </div>
+  </div>
+
+  <script>
+    // Kategori buton başlıkları
+    const categories = [
+      "Uyarma",
+      "Kınama",
+      "Aylıktan Kesme",
+      "Kademe İlerlemesinin Durdurulması",
+      "Devlet Memurluğundan Çıkarma"
+    ];
+
+    // TÜM FİİLLER (senin yazdıkların)
+    const items = [
+      // UYARMA
+      {
+        text: "Verilen emir ve görevlerin tam ve zamanında yapılmasında, görev mahallinde kurumlarca belirlenen usul ve esasların yerine getirilmesinde, görevle ilgili resmi belge, araç ve gereçlerin korunması, kullanılması ve bakımında kayıtsızlık göstermek veya düzensiz davranmak.",
+        category: "Uyarma"
+      },
+      {
+        text: "Özürsüz veya izinsiz olarak göreve geç gelmek, erken ayrılmak, görev mahallini terketmek.",
+        category: "Uyarma"
+      },
+      {
+        text: "Kurumca belirlenen tasarruf tedbirlerine riayet etmemek.",
+        category: "Uyarma"
+      },
+      {
+        text: "Usulsüz müracaat veya şikayette bulunmak.",
+        category: "Uyarma"
+      },
+      {
+        text: "Devlet memuru vakarına yakışmayan tutum ve davranışta bulunmak.",
+        category: "Uyarma"
+      },
+      {
+        text: "Görevine veya iş sahiplerine karşı kayıtsızlık göstermek veya ilgisiz kalmak.",
+        category: "Uyarma"
+      },
+      {
+        text: "Belirlenen kılık ve kıyafet hükümlerine aykırı davranmak.",
+        category: "Uyarma"
+      },
+      {
+        text: "Görevin işbirliği içinde yapılması ilkesine aykırı davranışlarda bulunmak.",
+        category: "Uyarma"
+      },
+
+      // KINAMA
+      {
+        text: "Verilen emir ve görevlerin tam ve zamanında yapılmasında, görev mahallinde kurumlarca belirlenen usul ve esasların yerine getirilmesinde, görevle ilgili resmi belge, araç ve gereçlerin korunması, kullanılması ve bakımında kusurlu davranmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Eşlerinin, reşit olmayan veya mahcur olan çocuklarının kazanç getiren sürekli faaliyetlerini belirlenen sürede kurumuna bildirmemek.",
+        category: "Kınama"
+      },
+      {
+        text: "Görev sırasında amire hal ve hareketi ile saygısız davranmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Hizmet dışında Devlet memurunun itibar ve güven duygusunu sarsacak nitelikte davranışlarda bulunmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Devlete ait resmi araç, gereç ve benzeri eşyayı özel işlerinde kullanmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Devlete ait resmî belge, araç, gereç ve benzeri eşyayı kaybetmek.",
+        category: "Kınama"
+      },
+      {
+        text: "İş arkadaşlarına, maiyetindeki personele ve iş sahiplerine kötü muamelede bulunmak.",
+        category: "Kınama"
+      },
+      {
+        text: "İş arkadaşlarına ve iş sahiplerine söz veya hareketle sataşmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Görev mahallinde genel ahlak ve edep dışı davranışlarda bulunmak ve bu tür yazı yazmak, işaret, resim ve benzeri şekiller çizmek ve yapmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Verilen emirlere itiraz etmek.",
+        category: "Kınama"
+      },
+      {
+        text: "Borçlarını kasten ödemeyerek hakkında yasal yollara başvurulmasına neden olmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Kurumların huzur, sükun ve çalışma düzenini bozmak.",
+        category: "Kınama"
+      },
+      {
+        text: "Yetkili olmadığı halde basına, haber ajanslarına veya radyo ve televizyon kurumlarına bilgi veya demeç vermek.",
+        category: "Kınama"
+      },
+
+      // AYLıKTAN KESME
+      {
+        text: "Kasıtlı olarak; verilen emir ve görevleri tam ve zamanında yapmamak, görev mahallinde kurumlarca belirlenen usul ve esasları yerine getirmemek, görevle ilgili resmi belge, araç ve gereçleri korumamak, bakımını yapmamak, hor kullanmak.",
+        category: "Aylıktan Kesme"
+      },
+      {
+        text: "Özürsüz olarak bir veya iki gün göreve gelmemek.",
+        category: "Aylıktan Kesme"
+      },
+      {
+        text: "Devlete ait resmi belge, araç, gereç ve benzerlerini özel menfaat sağlamak için kullanmak.",
+        category: "Aylıktan Kesme"
+      },
+      {
+        text: "Görevle ilgili konularda yükümlü olduğu kişilere yalan ve yanlış beyanda bulunmak.",
+        category: "Aylıktan Kesme"
+      },
+      {
+        text: "Görev sırasında amirine sözle saygısızlık etmek.",
+        category: "Aylıktan Kesme"
+      },
+      {
+        text: "Görev yeri sınırları içerisinde her hangi bir yerin toplantı, tören ve benzeri amaçlarla izinsiz olarak kullanılmasına yardımcı olmak.",
+        category: "Aylıktan Kesme"
+      },
+      {
+        text: "Hizmet içinde Devlet memurunun itibar ve güven duygusunu sarsacak nitelikte davranışlarda bulunmak.",
+        category: "Aylıktan Kesme"
+      },
+
+      // KADEME İLERLEMESİNİN DURDURULMASI
+      {
+        text: "Göreve sarhoş gelmek, görev yerinde alkollü içki içmek.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Özürsüz ve kesintisiz 3 - 9 gün göreve gelmemek.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Görevi ile ilgili olarak her ne şekilde olursa olsun çıkar sağlamak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Amirine veya maiyetindekilere karşı küçük düşürücü veya aşağılayıcı fiil ve hareketler yapmak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Görev yeri sınırları içinde herhangi bir yeri toplantı, tören ve benzeri amaçlarla izinsiz kullanmak veya kullandırmak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Gerçeğe aykırı rapor ve belge düzenlemek.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Ticaret yapmak veya Devlet memurlarına yasaklanan diğer kazanç getirici faaliyetlerde bulunmak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Görevin yerine getirilmesinde dil, ırk, cinsiyet, siyasi düşünce, felsefi inanç, din ve mezhep ayrımı yapmak, kişilerin yarar veya zararını hedef tutan davranışlarda bulunmak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Belirlenen durum ve sürelerde mal bildiriminde bulunmamak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Açıklanması yasaklanan bilgileri açıklamak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Amirine, maiyetindekilere, iş arkadaşları veya iş sahiplerine hakarette bulunmak veya bunları tehdit etmek.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Diplomatik statüsünden yararlanmak suretiyle yurt dışında, haklı bir sebep göstermeksizin ödeme kabiliyetinin üstünde borçlanmak ve borçlarını ödemedeki tutum ve davranışlarıyla Devlet itibarını zedelemek veya zorunlu bir sebebe dayanmaksızın borcunu ödemeden yurda dönmek.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Verilen görev ve emirleri kasten yapmamak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+      {
+        text: "Herhangi bir siyasi parti yararına veya zararına fiilen faaliyette bulunmak.",
+        category: "Kademe İlerlemesinin Durdurulması"
+      },
+
+      // MEMURİYETTEN ÇIKARMA
+      {
+        text: "İdeolojik veya siyasi amaçlarla kurumların huzur, sükun ve çalışma düzenini bozmak, boykot, işgal, kamu hizmetlerinin yürütülmesini engelleme, işi yavaşlatma ve grev gibi eylemlere katılmak veya bu amaçlarla toplu olarak göreve gelmemek, bunları tahrik ve teşvik etmek veya yardımda bulunmak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Yasaklanmış her türlü yayını veya siyasi veya ideolojik amaçlı bildiri, afiş, pankart, bant ve benzerlerini basmak, çoğaltmak, dağıtmak veya bunları kurumların herhangi bir yerine asmak veya teşhir etmek.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Siyasi partiye girmek.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Özürsüz olarak bir yılda toplam 20 gün göreve gelmemek.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Savaş, olağanüstü hal veya genel afetlere ilişkin konularda amirlerin verdiği görev veya emirleri yapmamak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Amirlerine, maiyetindekilere ve iş sahiplerine fiili tecavüzde bulunmak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Memurluk sıfatı ile bağdaşmayacak nitelik ve derecede yüz kızartıcı ve utanç verici hareketlerde bulunmak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Yetki almadan gizli bilgileri açıklamak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Siyasi ve ideolojik eylemlerden arananları görev mahallinde gizlemek.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Yurt dışında Devletin itibarını düşürecek veya görev haysiyetini zedeleyecek tutum ve davranışlarda bulunmak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "5816 sayılı Atatürk Aleyhine İşlenen Suçlar Hakkındaki Kanuna aykırı fiilleri işlemek.",
+        category: "Devlet Memurluğundan Çıkarma"
+      },
+      {
+        text: "Terör örgütleriyle eylem birliği içerisinde olmak, bu örgütlere yardım etmek, kamu imkân ve kaynaklarını bu örgütleri desteklemeye yönelik kullanmak ya da kullandırmak, propaganda yapmak.",
+        category: "Devlet Memurluğundan Çıkarma"
+      }
+    ];
+
+    // Karıştırma fonksiyonu
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const fiilTextEl = document.getElementById("fiil-text");
+    const buttonsContainer = document.getElementById("buttons");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("next-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const finishedText = document.getElementById("finished-text");
+
+    const statCorrect = document.getElementById("stat-correct");
+    const statWrong = document.getElementById("stat-wrong");
+    const statTotal = document.getElementById("stat-total");
+
+    let order = [];
+    let currentIndex = 0;
+    let hasAnswered = false;
+    let correctCount = 0;
+    let wrongCount = 0;
+
+    function initGame() {
+      order = shuffle([...items.keys()]);
+      currentIndex = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      hasAnswered = false;
+      statCorrect.textContent = "0";
+      statWrong.textContent = "0";
+      statTotal.textContent = "0";
+      feedbackEl.style.display = "none";
+      feedbackEl.className = "feedback";
+      finishedText.style.display = "none";
+      if (nextBtn) nextBtn.disabled = true;
+      renderCurrentFiil();
+      renderButtons();
+    }
+
+    function renderCurrentFiil() {
+      const item = items[order[currentIndex]];
+      fiilTextEl.textContent = item.text;
+      statTotal.textContent = String(currentIndex);
+    }
+
+    function renderButtons() {
+      buttonsContainer.innerHTML = "";
+      categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.dataset.category = cat;
+
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "label";
+        labelSpan.textContent = cat;
+
+        const tagSpan = document.createElement("span");
+        tagSpan.className = "tag";
+        tagSpan.textContent =
+          cat === "Uyarma" ? "En hafif" :
+          cat === "Kınama" ? "Bir seviye ağır" :
+          cat === "Aylıktan Kesme" ? "Maaşa yansır" :
+          cat === "Kademe İlerlemesinin Durdurulması" ? "Kariyere darbe" :
+          "En ağır ceza";
+
+        btn.appendChild(labelSpan);
+        btn.appendChild(tagSpan);
+
+        btn.addEventListener("click", () => handleChoice(btn));
+        buttonsContainer.appendChild(btn);
+      });
+    }
+
+    function handleChoice(btn) {
+      if (hasAnswered) return; // aynı soruda ikinci seçime izin yok
+
+      hasAnswered = true;
+      const selectedCat = btn.dataset.category;
+      const item = items[order[currentIndex]];
+      const correctCat = item.category;
+
+      const allBtns = buttonsContainer.querySelectorAll(".choice-btn");
+      allBtns.forEach(b => b.disabled = true);
+
+      if (selectedCat === correctCat) {
+        btn.classList.add("correct");
+        correctCount++;
+        statCorrect.textContent = String(correctCount);
+        feedbackEl.className = "feedback good";
+        feedbackEl.innerHTML = `✅ <strong>Doğru!</strong> Bu fiil <strong>${correctCat}</strong> cezasını gerektirir.`;
+      } else {
+        btn.classList.add("wrong");
+        const correctBtn = Array.from(allBtns).find(
+          b => b.dataset.category === correctCat
+        );
+        if (correctBtn) correctBtn.classList.add("correct");
+        wrongCount++;
+        statWrong.textContent = String(wrongCount);
+        feedbackEl.className = "feedback bad";
+        feedbackEl.innerHTML =
+          `❌ <strong>Yanlış seçim:</strong> Sen <strong>${selectedCat}</strong> dedin.<br>` +
+          `✅ <strong>Doğru cevap:</strong> <strong>${correctCat}</strong>.`;
+      }
+
+      feedbackEl.style.display = "block";
+      statTotal.textContent = String(currentIndex + 1);
+
+      // 2 saniye sonra otomatik sonraki fiile geç
+      setTimeout(() => {
+        goNext();
+      }, 2000);
+    }
+
+    function goNext() {
+      if (currentIndex < order.length - 1) {
+        currentIndex++;
+        hasAnswered = false;
+        feedbackEl.style.display = "none";
+        feedbackEl.className = "feedback";
+        renderCurrentFiil();
+        renderButtons();
+        if (nextBtn) nextBtn.disabled = true;
+      } else {
+        // Oyun bitti
+        finishedText.style.display = "block";
+        feedbackEl.style.display = "block";
+        feedbackEl.className = "feedback good";
+        feedbackEl.innerHTML =
+          `🎉 <strong>Bitti!</strong> Tüm fiilleri bir kez gördün.<br>` +
+          `✔ Doğru: <strong>${correctCount}</strong> &nbsp;&nbsp; ✖ Yanlış: <strong>${wrongCount}</strong>`;
+      }
+    }
+
+    if (nextBtn) nextBtn.addEventListener("click", goNext);
+    resetBtn.addEventListener("click", initGame);
+
+    initGame();
+  </script>
+</body>
+</html>
