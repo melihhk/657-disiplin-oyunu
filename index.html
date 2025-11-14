@@ -2,6 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>657 Disiplin Cezaları - Eşleştirme Oyunu</title>
   <style>
     * { box-sizing: border-box; }
@@ -22,13 +23,6 @@
       border-radius: 16px;
       padding: 16px 16px 20px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-    }
-
-    @media (min-width: 768px) {
-      .app {
-        padding: 24px 28px 28px;
-        margin-top: 20px;
-      }
     }
 
     h1 {
@@ -227,6 +221,39 @@
     #next-btn {
       display: none;
     }
+
+    /* 📱 Mobilde daha büyük ve tam ekran hisli olsun */
+    @media (max-width: 600px) {
+      body {
+        padding: 0;
+      }
+      .app {
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100vh;
+        padding: 16px 12px 20px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      .subtitle {
+        font-size: 12px;
+      }
+      .fiil-text {
+        font-size: 15px;
+      }
+      .choice-btn {
+        padding: 14px 16px;
+        font-size: 16px;
+      }
+      .choice-btn span.tag {
+        font-size: 12px;
+      }
+      .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -266,7 +293,7 @@
     </div>
 
     <div class="finished" id="finished-text" style="display:none;">
-      🎉 Tüm fiilleri bir kez gördün. İstersen yeniden başlayıp tekrar edebilirsin.
+      🎉 Tüm fiilleri bir kez (ve yanlışları tekrar tekrar) gördün. İstersen yeniden başlayıp pekiştirebilirsin.
     </div>
   </div>
 
@@ -280,7 +307,7 @@
       "Devlet Memurluğundan Çıkarma"
     ];
 
-    // TÜM FİİLLER (senin yazdıkların)
+    // TÜM FİİLLER
     const items = [
       // UYARMA
       {
@@ -529,17 +556,23 @@
     const statWrong = document.getElementById("stat-wrong");
     const statTotal = document.getElementById("stat-total");
 
-    let order = [];
-    let currentIndex = 0;
+    const REASK_OFFSET = 4; // Şu andaki sorudan 4. sıraya (arada 3 soru olacak şekilde)
+
+    let upcoming = [];       // Sıradaki soru indexleri
+    let currentPos = 0;      // upcoming içindeki pozisyon
     let hasAnswered = false;
     let correctCount = 0;
     let wrongCount = 0;
+    let answeredCount = 0;   // Kullanıcının cevapladığı soru sayısı (tekrarlar dahil)
 
     function initGame() {
-      order = shuffle([...items.keys()]);
-      currentIndex = 0;
+      const indices = [...items.keys()];
+      shuffle(indices);
+      upcoming = indices.slice();  // Başlangıçta tüm sorular karışık
+      currentPos = 0;
       correctCount = 0;
       wrongCount = 0;
+      answeredCount = 0;
       hasAnswered = false;
       statCorrect.textContent = "0";
       statWrong.textContent = "0";
@@ -552,10 +585,13 @@
       renderButtons();
     }
 
+    function getCurrentItem() {
+      return items[upcoming[currentPos]];
+    }
+
     function renderCurrentFiil() {
-      const item = items[order[currentIndex]];
+      const item = getCurrentItem();
       fiilTextEl.textContent = item.text;
-      statTotal.textContent = String(currentIndex);
     }
 
     function renderButtons() {
@@ -591,7 +627,7 @@
 
       hasAnswered = true;
       const selectedCat = btn.dataset.category;
-      const item = items[order[currentIndex]];
+      const item = getCurrentItem();
       const correctCat = item.category;
 
       const allBtns = buttonsContainer.querySelectorAll(".choice-btn");
@@ -615,10 +651,15 @@
         feedbackEl.innerHTML =
           `❌ <strong>Yanlış seçim:</strong> Sen <strong>${selectedCat}</strong> dedin.<br>` +
           `✅ <strong>Doğru cevap:</strong> <strong>${correctCat}</strong>.`;
+
+        // ❗ Yanlış soruyu 3 soru sonra tekrar sor: şu anki item indexini,
+        // currentPos + 4. pozisyona (arada 3 soru olacak şekilde) ekleyelim.
+        const currentItemIndex = upcoming[currentPos];
+        const targetPos = Math.min(currentPos + REASK_OFFSET, upcoming.length);
+        upcoming.splice(targetPos, 0, currentItemIndex);
       }
 
       feedbackEl.style.display = "block";
-      statTotal.textContent = String(currentIndex + 1);
 
       // 2 saniye sonra otomatik sonraki fiile geç
       setTimeout(() => {
@@ -627,8 +668,11 @@
     }
 
     function goNext() {
-      if (currentIndex < order.length - 1) {
-        currentIndex++;
+      answeredCount++;
+      statTotal.textContent = String(answeredCount);
+
+      if (currentPos < upcoming.length - 1) {
+        currentPos++;
         hasAnswered = false;
         feedbackEl.style.display = "none";
         feedbackEl.className = "feedback";
@@ -641,8 +685,9 @@
         feedbackEl.style.display = "block";
         feedbackEl.className = "feedback good";
         feedbackEl.innerHTML =
-          `🎉 <strong>Bitti!</strong> Tüm fiilleri bir kez gördün.<br>` +
-          `✔ Doğru: <strong>${correctCount}</strong> &nbsp;&nbsp; ✖ Yanlış: <strong>${wrongCount}</strong>`;
+          `🎉 <strong>Bitti!</strong> Tüm fiilleri ve yanlış yaptıklarını tekrar tekrar gördün.<br>` +
+          `✔ Doğru: <strong>${correctCount}</strong> &nbsp;&nbsp; ✖ Yanlış: <strong>${wrongCount}</strong><br>` +
+          `🔄 Toplam cevaplanan: <strong>${answeredCount}</strong>`;
       }
     }
 
