@@ -9,33 +9,64 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #eef1ff, #f7fbff);
       margin: 0;
+      min-height: 100vh;
       padding: 16px;
       display: flex;
       justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #28335a 0, #080b18 50%, #02030a 100%);
+      color: #f5f7ff;
+      overflow-x: hidden;
+    }
+
+    /* Arkada yavaş dönen renk bulutu */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -50%;
+      z-index: -1;
+      background: conic-gradient(
+        from 180deg,
+        #4b6bff33,
+        #0cd3ff22,
+        #a855ff33,
+        #ff4b9233,
+        #4b6bff33
+      );
+      filter: blur(90px);
+      opacity: 0.4;
+      animation: spinGlow 22s linear infinite;
+    }
+
+    @keyframes spinGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .app {
       width: 100%;
       max-width: 900px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 16px 16px 20px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      background: linear-gradient(140deg, rgba(10,14,34,0.96), rgba(24,32,70,0.98));
+      border-radius: 22px;
+      padding: 18px 16px 22px;
+      box-shadow: 0 26px 80px rgba(0,0,0,0.8);
+      border: 1px solid rgba(120,140,255,0.45);
     }
 
     h1 {
       font-size: 20px;
       margin: 0 0 6px;
       text-align: center;
-      color: #222b55;
+      color: #ffffff;
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 18px rgba(123,152,255,0.85);
     }
 
     .subtitle {
       text-align: center;
       font-size: 13px;
-      color: #667;
+      color: #c6c9ff;
       margin-bottom: 16px;
     }
 
@@ -54,13 +85,26 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      background: #f2f3ff;
-      color: #333;
+      background: radial-gradient(circle at top, #1d2340, #0c1022);
+      color: #e7e9ff;
+      border: 1px solid rgba(116,134,255,0.5);
     }
 
-    .stat.good { background: #e4fbe9; color: #146c2e; }
-    .stat.bad  { background: #ffe8e6; color: #a32121; }
-    .stat.total{ background: #eaf3ff; color: #204a9b; }
+    .stat.good {
+      background: radial-gradient(circle at top, #14452f, #071b12);
+      color: #9ff0c1;
+      border-color: rgba(92,214,142,0.7);
+    }
+    .stat.bad  {
+      background: radial-gradient(circle at top, #4a1e22, #190507);
+      color: #ffc0c0;
+      border-color: rgba(255,120,120,0.8);
+    }
+    .stat.total{
+      background: radial-gradient(circle at top, #1f2d5c, #0a0f24);
+      color: #b3c5ff;
+      border-color: rgba(129,160,255,0.7);
+    }
 
     .badge {
       font-weight: 700;
@@ -68,25 +112,56 @@
     }
 
     .card {
-      background: #f9f9ff;
-      border-radius: 14px;
+      position: relative;
+      background: radial-gradient(circle at top left, rgba(83,111,255,0.3), rgba(8,11,28,0.98));
+      border-radius: 18px;
       padding: 14px 14px 16px;
       margin-bottom: 16px;
-      border: 1px solid #e0e4ff;
+      border: 1px solid rgba(130,150,255,0.7);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      overflow: hidden;
+      animation: floatCard 6s ease-in-out infinite;
+    }
+
+    /* Soru kutusuna hafif hareket + parıltı */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -25%;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.15), transparent 55%);
+      opacity: 0.7;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    @keyframes floatCard {
+      0% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.75);
+      }
+      50% {
+        transform: translateY(-4px) scale(1.005);
+        box-shadow: 0 26px 70px rgba(23,49,140,0.9);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.75);
+      }
     }
 
     .card-label {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #889;
+      letter-spacing: 0.16em;
+      color: #a8afff;
       margin-bottom: 6px;
+      opacity: 0.85;
     }
 
     .fiil-text {
       font-size: 14px;
-      line-height: 1.4;
-      color: #222b55;
+      line-height: 1.5;
+      color: #f1f3ff;
       white-space: pre-wrap;
     }
 
@@ -99,18 +174,24 @@
 
     .choice-btn {
       width: 100%;
-      border: none;
       border-radius: 999px;
-      padding: 9px 12px;
+      border: 1px solid rgba(100,120,255,0.55);
+      padding: 9px 14px;
       font-size: 14px;
       text-align: left;
       display: flex;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
-      background: #eef1ff;
-      color: #20244a;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease, color 0.1s ease;
+      background: radial-gradient(circle at top, #181d3a, #060818);
+      color: #e0e4ff;
+      transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        background 0.12s ease,
+        color 0.12s ease,
+        border-color 0.12s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.65);
     }
 
     .choice-btn span.label {
@@ -119,32 +200,43 @@
 
     .choice-btn span.tag {
       font-size: 11px;
-      opacity: 0.7;
+      opacity: 0.8;
+      color: #9fa7ff;
     }
 
-    .choice-btn:hover {
+    .choice-btn:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 24px rgba(17,26,80,0.9);
+      border-color: rgba(143,163,255,1);
+      background: radial-gradient(circle at top, #222a51, #070919);
+    }
+
+    .choice-btn:disabled {
+      cursor: default;
+      opacity: 0.94;
     }
 
     .choice-btn.correct {
-      background: #dffbe7;
-      color: #0f6a2e;
-      box-shadow: 0 3px 10px rgba(0,128,0,0.2);
+      background: radial-gradient(circle at top, #0f5a35, #05190f);
+      color: #c6ffe0;
+      box-shadow: 0 10px 30px rgba(40,204,120,0.85);
+      border-color: rgba(82,231,158,0.9);
     }
 
     .choice-btn.wrong {
-      background: #ffe2df;
-      color: #8c1515;
-      box-shadow: 0 3px 10px rgba(200,0,0,0.2);
+      background: radial-gradient(circle at top, #5b1416, #170607);
+      color: #ffd1d4;
+      box-shadow: 0 10px 30px rgba(255,60,80,0.9);
+      border-color: rgba(255,130,130,0.9);
       animation: shake 0.25s;
     }
 
+    /* Yanlış cevapta kutucuk titreme efekti */
     @keyframes shake {
       0% { transform: translateX(0); }
-      25% { transform: translateX(-3px); }
-      50% { transform: translateX(3px); }
-      75% { transform: translateX(-2px); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-3px); }
       100% { transform: translateX(0); }
     }
 
@@ -152,23 +244,25 @@
       border-radius: 12px;
       padding: 10px 12px;
       font-size: 13px;
-      line-height: 1.4;
+      line-height: 1.5;
       display: none;
       margin-bottom: 12px;
     }
 
     .feedback.good {
       display: block;
-      background: #e4fbe9;
-      border: 1px solid #b7ecc6;
-      color: #145729;
+      background: radial-gradient(circle at top, #0f3822, #05130b);
+      border: 1px solid #39d37f;
+      color: #b9ffdb;
+      box-shadow: 0 0 20px rgba(57,211,127,0.5);
     }
 
     .feedback.bad {
       display: block;
-      background: #ffe7e4;
-      border: 1px solid #f0b9b0;
-      color: #8a1919;
+      background: radial-gradient(circle at top, #4c1717, #150506);
+      border: 1px solid #ff7c7c;
+      color: #ffe0e0;
+      box-shadow: 0 0 20px rgba(255,98,98,0.5);
     }
 
     .feedback strong {
@@ -192,16 +286,20 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      letter-spacing: 0.02em;
     }
 
     .btn-primary {
-      background: #4a63ff;
+      background: linear-gradient(135deg, #4a63ff, #8e9bff);
       color: #fff;
+      box-shadow: 0 10px 26px rgba(43,72,255,0.7);
     }
 
     .btn-secondary {
-      background: #e0e4ff;
-      color: #1d2b6a;
+      background: linear-gradient(135deg, #23284a, #171a32);
+      color: #d4d7ff;
+      border: 1px solid rgba(139,154,255,0.7);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.7);
     }
 
     .btn:disabled {
@@ -214,15 +312,15 @@
       text-align: center;
       font-size: 14px;
       margin-top: 8px;
-      color: #37436e;
+      color: #d3d6ff;
     }
 
-    /* Sonraki fiil butonunu gizledik, sadece otomatik geçiş var */
+    /* Sonraki fiil butonunu gizli tutuyoruz – otomatik geçiş var */
     #next-btn {
       display: none;
     }
 
-    /* 📱 Mobilde daha büyük ve tam ekran hisli olsun */
+    /* 📱 Mobil tam ekran his */
     @media (max-width: 600px) {
       body {
         padding: 0;
@@ -231,7 +329,7 @@
         border-radius: 0;
         box-shadow: none;
         min-height: 100vh;
-        padding: 16px 12px 20px;
+        padding: 18px 14px 22px;
       }
       h1 {
         font-size: 18px;
@@ -293,7 +391,7 @@
     </div>
 
     <div class="finished" id="finished-text" style="display:none;">
-      🎉 Tüm fiilleri bir kez (ve yanlışları tekrar tekrar) gördün. İstersen yeniden başlayıp pekiştirebilirsin.
+      🎉 Tüm fiilleri ve yanlış yaptıklarını tekrar tekrar gördün. İstersen yeniden başlayıp pekiştirebilirsin.
     </div>
   </div>
 
@@ -556,7 +654,11 @@
     const statWrong = document.getElementById("stat-wrong");
     const statTotal = document.getElementById("stat-total");
 
-    const REASK_OFFSET = 4; // Şu andaki sorudan 4. sıraya (arada 3 soru olacak şekilde)
+    // ❗ Yanlış cevaplanan fiil:
+    //    - 3 soru sonra tekrar,
+    //    - bir 3 soru sonra daha tekrar (toplam 2 ekstra tekrar)
+    const REASK_OFFSET = 4;          // araya 3 soru girmesi için (şu anki + 4. pozisyon)
+    const MAX_EXTRA_REPEATS = 2;     // her yanlış fiil için 2 kez daha tekrar
 
     let upcoming = [];       // Sıradaki soru indexleri
     let currentPos = 0;      // upcoming içindeki pozisyon
@@ -564,6 +666,7 @@
     let correctCount = 0;
     let wrongCount = 0;
     let answeredCount = 0;   // Kullanıcının cevapladığı soru sayısı (tekrarlar dahil)
+    let repeatTracker = {};  // itemIndex -> planlanan ekstra tekrar sayısı
 
     function initGame() {
       const indices = [...items.keys()];
@@ -574,13 +677,17 @@
       wrongCount = 0;
       answeredCount = 0;
       hasAnswered = false;
+      repeatTracker = {};
+
       statCorrect.textContent = "0";
       statWrong.textContent = "0";
       statTotal.textContent = "0";
+
       feedbackEl.style.display = "none";
       feedbackEl.className = "feedback";
       finishedText.style.display = "none";
       if (nextBtn) nextBtn.disabled = true;
+
       renderCurrentFiil();
       renderButtons();
     }
@@ -652,11 +759,22 @@
           `❌ <strong>Yanlış seçim:</strong> Sen <strong>${selectedCat}</strong> dedin.<br>` +
           `✅ <strong>Doğru cevap:</strong> <strong>${correctCat}</strong>.`;
 
-        // ❗ Yanlış soruyu 3 soru sonra tekrar sor: şu anki item indexini,
-        // currentPos + 4. pozisyona (arada 3 soru olacak şekilde) ekleyelim.
+        // ❗ Yanlış soruyu 3 soru sonra ve 3 soru sonra tekrar olmak üzere
+        // en fazla 2 kez daha sıraya ekle
         const currentItemIndex = upcoming[currentPos];
-        const targetPos = Math.min(currentPos + REASK_OFFSET, upcoming.length);
-        upcoming.splice(targetPos, 0, currentItemIndex);
+        if (!repeatTracker[currentItemIndex]) {
+          repeatTracker[currentItemIndex] = 0;
+        }
+
+        while (repeatTracker[currentItemIndex] < MAX_EXTRA_REPEATS) {
+          const extraNumber = repeatTracker[currentItemIndex] + 1; // 1. tekrar, 2. tekrar
+          const targetPos = Math.min(
+            currentPos + REASK_OFFSET * extraNumber,
+            upcoming.length
+          );
+          upcoming.splice(targetPos, 0, currentItemIndex);
+          repeatTracker[currentItemIndex]++;
+        }
       }
 
       feedbackEl.style.display = "block";
